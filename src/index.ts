@@ -1,4 +1,18 @@
 import inquirer from "inquirer";
+import pg from "pg";
+
+const { Client } = pg;
+
+const client = new Client ({
+    host: 'localhost',
+    user: 'postgres',
+    password: 'Kmd.i321',
+    database: 'employee_tracker',
+    port: 5432,
+
+});
+
+await client.connect();
 
 async function mainMenu() {
     const { action } = await inquirer.prompt([
@@ -32,7 +46,7 @@ async function mainMenu() {
             break;
         case "Quit":
             console.log("Goodbye!");
-            return; // Exit the function
+            return; 
         default:
             break;
     }
@@ -47,6 +61,7 @@ async function addDepartment() {
             name: "department",
         }
     ]);
+    await client.query ('INSERT INTO department (name) VALUES ($1)', [department]);
 }
 //add role
 async function addRole() {
@@ -60,8 +75,14 @@ async function addRole() {
             type: "input",
             message: "Add a salary",
             name: "roleSalary",
-        }
+        },
+        {
+            type: "input",
+            message: "Add a department",
+            name: "roleDepartment",
+        },
     ]);
+    await client.query ('INSERT INTO role (title, salary, department) VALUES ($1, $2, $3)', [roleName, roleSalary]);
 }
 //add employee name, role, and manager
 async function addEmployee() {
@@ -87,6 +108,7 @@ async function addEmployee() {
             name: "employeeManager",
         },
     ]);
+    await client.query ('INSERT INTO employee (first_name, last_name, role, manager) VALUES ($1, $2, $3, $4)', [employeeFirstName, employeeLastName, employeeRole, employeeManager]);
 }
 
 mainMenu();
